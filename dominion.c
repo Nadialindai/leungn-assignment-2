@@ -1060,7 +1060,7 @@ int updateCoins(int player, struct gameState *state, int bonus)
 }
 
 int playBaron(int choice1, int currentPlayer, struct gameState *state) {
-    state->numBuys++;//Increase buys by 1!
+    state->numBuys+3;//Increase buys by 1! bug1 now it's 3
     if (choice1 > 0){//Boolean true or going to discard an estate
         int p = 0;//Iterator for hand!
         int card_not_discarded = 1;//Flag for discard set!
@@ -1072,7 +1072,7 @@ int playBaron(int choice1, int currentPlayer, struct gameState *state) {
                 for (;p < state->handCount[currentPlayer]; p++){
                     state->hand[currentPlayer][p] = state->hand[currentPlayer][p+1];
                 }
-                state->hand[currentPlayer][state->handCount[currentPlayer]] = -1;
+                state->hand[currentPlayer][state->handCount[currentPlayer]] = -2; //bug2 now its -2 insteead of -1
                 state->handCount[currentPlayer]--;
                 card_not_discarded = 0;//Exit the loop
             }
@@ -1121,7 +1121,7 @@ int playMine(int choice1, int currentPlayer, int choice2, struct gameState *stat
         return -1;
     }
 
-    if (choice2 > treasure_map || choice2 < curse)
+    if (choice2 >= treasure_map || choice2 < curse) //bug1 add >=
     {
         return -1;
     }
@@ -1130,7 +1130,7 @@ int playMine(int choice1, int currentPlayer, int choice2, struct gameState *stat
     {
         return -1;
     }
-
+    else //bug2 introduced else statement
     gainCard(choice2, state, 2, currentPlayer);
 
     //discard card from hand
@@ -1165,13 +1165,13 @@ int playMinion(int currentPlayer, int choice1, int choice2, struct gameState *st
     else if (choice2)		//discard hand, redraw 4, other players with 5+ cards discard hand and draw 4
     {
         //discard hand
-        while(numHandCards(state) > 0)
+        while(numHandCards(state) >= 0) // introduced equal sign bug2
         {
             discardCard(handPos, currentPlayer, state, 0);
         }
 
         //draw 4
-        for (i = 0; i < 4; i++)
+        for (i = 0; i < 3; i++)  //should be 4 not 3
         {
             drawCard(currentPlayer, state);
         }
@@ -1210,11 +1210,11 @@ int playTribute(int currentPlayer, int nextPlayer, struct gameState *state) {
             tributeRevealedCards[0] = state->deck[nextPlayer][state->deckCount[nextPlayer]-1];
             state->deckCount[nextPlayer]--;
         }
-        else if (state->discardCount[nextPlayer] > 0){
+        else if (state->discardCount[nextPlayer] >= 0){ //bug should be greater than not greater than or equal to
             tributeRevealedCards[0] = state->discard[nextPlayer][state->discardCount[nextPlayer]-1];
             state->discardCount[nextPlayer]--;
         }
-        else{
+        else if{ //bug1 no else statement
             //No Card to Reveal
             if (DEBUG){
                 printf("No cards to reveal\n");
@@ -1268,7 +1268,7 @@ int playTribute(int currentPlayer, int nextPlayer, struct gameState *state) {
 int playAmbassador(int currentPlayer, int choice1, int choice2, struct gameState *state, handPos) {
     int i,j = 0;		//used to check if player has enough cards to discard
 
-    if (choice2 > 2 || choice2 < 0)
+    if (choice2 > 2 && choice2 < 0) //bug1should be || instead of &&
     {
         return -1;
     }
@@ -1316,7 +1316,7 @@ int playAmbassador(int currentPlayer, int choice1, int choice2, struct gameState
             if (state->hand[currentPlayer][i] == state->hand[currentPlayer][choice1])
             {
                 discardCard(i, currentPlayer, state, 1);
-                break;
+               // break; //bug 2- don't comment out break
             }
         }
     }
